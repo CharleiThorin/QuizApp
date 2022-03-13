@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">QuizApp</string>
+    <string name="question_1">What is the correct way to declare a variable of integer type in Kotlin?</string>
+    <string name="radio_1">int i = 42</string>
+    <string name="radio_2">var i:Int = 42</string>
+    <string name="radio_3">var i:int = 42</string>
+    <string name="radio_4">let i = 42</string>
+    <string name="question_2">Which of the following are Android RecyclerView layout managers? Select all that apply.</string>
+</resources>
