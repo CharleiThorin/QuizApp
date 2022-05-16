@@ -4,4 +4,9 @@
     <string name="charles_kyewalabye">Charles Kyewalabye</string>
     <string name="email">ckiwabs@miu.edu</string>
     <string name="quizapp">QuizApp</string>
+    <string name="questions">Questions  attempted</string>
+    <string name="qn">Text box to hold question </string>
+    <string name="ans">Text box to hold answer </string>
+    <string name="devs">Developers</string>
+    <string name="back">Back</string>
 </resources>

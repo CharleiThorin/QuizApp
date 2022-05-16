@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.content.Intent
 import android.view.View
 import android.widget.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class QuestionsActivity : AppCompatActivity() {
+    var qnNumber = 1
     var tv: TextView? = null
     var submitbutton: Button? = null
     var quitbutton: Button? = null
@@ -15,46 +18,16 @@ class QuestionsActivity : AppCompatActivity() {
     var rb2: RadioButton? = null
     var rb3: RadioButton? = null
     var rb4: RadioButton? = null
-    var questions = arrayOf(
-        "Which method can be defined only once in a program?",
-        "Which of these is not a bitwise operator?",
-        "Which keyword is used by method to refer to the object that invoked it?",
-        "Which of these keywords is used to define interfaces in Java?",
-        "Which of these access specifiers can be used for an interface?",
-        "Which of the following is correct way of importing an entire package ‘pkg’?",
-        "What is the return type of Constructors?",
-        "Which of the following package stores all the standard java classes?",
-        "Which of these method of class String is used to compare two String objects for their equality?",
-        "An expression involving byte, int, & literal numbers is promoted to which of these?"
-    )
-    var answers = arrayOf(
-        "main method",
-        "<=",
-        "this",
-        "interface",
-        "public",
-        "import pkg.*",
-        "None of the mentioned",
-        "java",
-        "equals()",
-        "int"
-    )
-    var opt = arrayOf(
-        "finalize method", "main method", "static method", "private method",
-        "&", "&=", "|=", "<=",
-        "import", "this", "catch", "abstract",
-        "Interface", "interface", "intf", "Intf",
-        "public", "protected", "private", "All of the mentioned",
-        "Import pkg.", "import pkg.*", "Import pkg.*", "import pkg.",
-        "int", "float", "void", "None of the mentioned",
-        "lang", "java", "util", "java.packages",
-        "equals()", "Equals()", "isequal()", "Isequal()",
-        "int", "long", "byte", "float"
-    )
     var flag = 0
+    val questions = MainActivity.questions
+    val answers =  MainActivity.answers
+    val options = MainActivity.options
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_questions)
+
         val score = findViewById<View>(R.id.textView4) as TextView
         val textView = findViewById<View>(R.id.DispName) as TextView
         val intent = intent
@@ -69,46 +42,60 @@ class QuestionsActivity : AppCompatActivity() {
         rb2 = findViewById<View>(R.id.radioButton2) as RadioButton
         rb3 = findViewById<View>(R.id.radioButton3) as RadioButton
         rb4 = findViewById<View>(R.id.radioButton4) as RadioButton
-        tv!!.text = questions[flag]
-        rb1!!.text = opt[0]
-        rb2!!.text = opt[1]
-        rb3!!.text = opt[2]
-        rb4!!.text = opt[3]
-        submitbutton!!.setOnClickListener(View.OnClickListener { //int color = mBackgroundColor.getColor();
-            //mLayout.setBackgroundColor(color);
-            if (radio_g!!.checkedRadioButtonId == -1) {
-                Toast.makeText(applicationContext, "Please select one choice", Toast.LENGTH_SHORT)
-                    .show()
-                return@OnClickListener
+
+        charliDB.questionsDao().getAllQuestions().observe(this){
+            it.forEach { repo ->
+
+                MainActivity.questions.add(repo.questn)
+
+                MainActivity.answers.add(repo.answers)
+
+                MainActivity.options.add(Gson().fromJson(repo.options, object: TypeToken<List<String>>(){}.type))
             }
-            val uans = findViewById<View>(radio_g!!.checkedRadioButtonId) as RadioButton
-            val ansText = uans.text.toString()
-            //                Toast.makeText(getApplicationContext(), ansText, Toast.LENGTH_SHORT).show();
-            if (ansText == answers[flag]) {
-                correct++
-                Toast.makeText(applicationContext, "Correct", Toast.LENGTH_SHORT).show()
-            } else {
-                wrong++
-                Toast.makeText(applicationContext, "Wrong", Toast.LENGTH_SHORT).show()
+
+            tv!!.text = questions[flag]
+            rb1!!.text = options[flag].get(0)
+            rb2!!.text = options[flag].get(1)
+            rb3!!.text = options[flag].get(2)
+            rb4!!.text = options[flag].get(3)
+            submitbutton!!.setOnClickListener(View.OnClickListener {
+                if (radio_g!!.checkedRadioButtonId == -1) {
+                    Toast.makeText(applicationContext, "Please select one choice", Toast.LENGTH_SHORT)
+                        .show()
+                    return@OnClickListener
+                }
+                val uans = findViewById<View>(radio_g!!.checkedRadioButtonId) as RadioButton
+                val ansText = uans.text.toString()
+                qns.put("qn ${qnNumber}",  questions[flag])
+                ans.put("qn ${qnNumber++}", listOf(ansText, answers[flag]))
+
+                if (ansText == answers[flag]) {
+                    correct++
+                    Toast.makeText(applicationContext, "Correct", Toast.LENGTH_SHORT).show()
+                } else {
+                    wrong++
+                    Toast.makeText(applicationContext, "Wrong", Toast.LENGTH_SHORT).show()
+                }
+                flag++
+
+                if (score != null) score.text = "" + correct
+                if (flag < questions.size) {
+                    tv!!.text = questions[flag]
+                    rb1!!.text = options[flag].get(0)
+                    rb2!!.text = options[flag].get(1)
+                    rb3!!.text = options[flag].get(2)
+                    rb4!!.text = options[flag].get(3)
+                } else {
+                    marks = correct
+                    val `in` = Intent(applicationContext, ResultActivity::class.java)
+                    startActivity(`in`)
+                }
+                radio_g!!.clearCheck()
+            })
+            quitbutton!!.setOnClickListener {
+                val intent = Intent(applicationContext, ResultActivity::class.java)
+                startActivity(intent)
             }
-            flag++
-            if (score != null) score.text = "" + correct
-            if (flag < questions.size) {
-                tv!!.text = questions[flag]
-                rb1!!.text = opt[flag * 4]
-                rb2!!.text = opt[flag * 4 + 1]
-                rb3!!.text = opt[flag * 4 + 2]
-                rb4!!.text = opt[flag * 4 + 3]
-            } else {
-                marks = correct
-                val `in` = Intent(applicationContext, ResultActivity::class.java)
-                startActivity(`in`)
-            }
-            radio_g!!.clearCheck()
-        })
-        quitbutton!!.setOnClickListener {
-            val intent = Intent(applicationContext, ResultActivity::class.java)
-            startActivity(intent)
         }
     }
 
@@ -116,5 +103,7 @@ class QuestionsActivity : AppCompatActivity() {
         var marks = 0
         var correct = 0
         var wrong = 0
+        var ans = HashMap<String,List<String?>>()
+        var qns = HashMap<String,String?>()
     }
 }

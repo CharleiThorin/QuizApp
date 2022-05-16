@@ -11,13 +11,17 @@ class ResultActivity : AppCompatActivity() {
     var tv2: TextView? = null
     var tv3: TextView? = null
     var btnRestart: Button? = null
+    var btnAnalysis: Button? =null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_result)
+
         tv = findViewById<View>(R.id.tvres) as TextView
         tv2 = findViewById<View>(R.id.tvres2) as TextView
         tv3 = findViewById<View>(R.id.tvres3) as TextView
         btnRestart = findViewById<View>(R.id.btnRestart) as Button
+        btnAnalysis = findViewById<View>(R.id.btnAnalysis) as Button
+
         val sb = StringBuffer()
         sb.append(
             """
@@ -47,6 +51,11 @@ class ResultActivity : AppCompatActivity() {
         btnRestart!!.setOnClickListener {
             val `in` = Intent(applicationContext, MainActivity::class.java)
             startActivity(`in`)
+        }
+
+        btnAnalysis!!.setOnClickListener {
+            val intent = Intent(applicationContext, AnalysisActivity::class.java)
+            startActivity(intent)
         }
     }
 }
